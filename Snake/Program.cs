@@ -29,9 +29,6 @@ do
     Thread.Sleep(100);
     Console.Clear();
     myGame.ShowField();
-    // свич с направление движения
-    //if (myGame.Direction == Direction.Start) continue;
-    //else if(myGame.Direction == Direction.Right) 
 
 
     //ConsoleKeyInfo key = Console.ReadKey();
@@ -97,14 +94,11 @@ class Game
     public void AddSnake(Snake snake)
     {
         for (int i = 0; i < Field.Count(); i++)
-        {
             for (int j = 0; j < Field[i].Count(); j++)
             {
                 if (snake.Body[0].X == i && snake.Body[0].Y == j)
                     Field[i][j] = snake.Body[0].Symbol;
             }
-        }
-    }
 
     public void Moving()
     {
