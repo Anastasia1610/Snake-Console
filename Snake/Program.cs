@@ -6,16 +6,11 @@
 //}
 
 
-//Console.WriteLine("Welcome to the Snake game!\n\nTo continue, type the SIZE of the playing field and press Enter...");
-//int size = 20;
-//if(int.TryParse(Console.ReadLine(), out int result))
-//    if(result >= 10)
-//        size = result;
-
 
 
 
 using System.Drawing;
+using System.Runtime.InteropServices;
 
 Game myGame = new Game();
 myGame.FieldGeneration();
@@ -53,9 +48,9 @@ do
     }
     myGame.Moving();
     myGame.AddSnake(myGame.Player);
-} while (true);
+} while (myGame.Loss());
 
-
+Console.WriteLine("You LOSE...");
 
 
 
@@ -65,6 +60,7 @@ class Game
     public List<List<string>> Field { get; set; } = new List<List<string>>();
 
     public Direction Direction { get; set; }
+
 
     public void FieldGeneration()
     {
@@ -132,6 +128,13 @@ class Game
             newBody.Add(Player.Body[i]);
         }
         Player = new Snake(newBody);
+    }
+
+    public bool Loss()
+    {
+        if (Player.Body[0].X == 0 || Player.Body[0].Y == 0 || Player.Body[0].X == Field.Count() - 1 || Player.Body[0].Y == Field.Count() - 1) 
+            return false;   
+        return true;
     }
 }
 
