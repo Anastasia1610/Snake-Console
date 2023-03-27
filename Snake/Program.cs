@@ -30,22 +30,23 @@ do
     Console.Clear();
     myGame.ShowField();
 
-
-    //ConsoleKeyInfo key = Console.ReadKey();
-   
-    switch(Console.ReadKey(true).Key)
+    switch (Console.ReadKey(true).Key)
     {
         case ConsoleKey.A:
-            myGame.Direction = Direction.Left;  
+            if (myGame.Direction != Direction.Right)
+                myGame.Direction = Direction.Left;
             break;
-        case ConsoleKey.D:  
-            myGame.Direction = Direction.Right; 
+        case ConsoleKey.D:
+            if (myGame.Direction != Direction.Left)
+                myGame.Direction = Direction.Right;
             break;
         case ConsoleKey.W:
-            myGame.Direction = Direction.Up;
+            if (myGame.Direction != Direction.Down)
+                myGame.Direction = Direction.Up;
             break;
         case ConsoleKey.S:
-            myGame.Direction = Direction.Down;
+            if (myGame.Direction != Direction.Up)
+                myGame.Direction = Direction.Down;
             break;
         default:
             break;
@@ -63,7 +64,7 @@ class Game
     public Snake Player { get; set; } = new Snake();
     public List<List<string>> Field { get; set; } = new List<List<string>>();
 
-    public Direction Direction { get; set; }   
+    public Direction Direction { get; set; }
 
     public void FieldGeneration()
     {
@@ -93,43 +94,59 @@ class Game
 
     public void AddSnake(Snake snake)
     {
+        //Удаление старого изображения змеи с поля
+        for (int i = 1; i < Field.Count() - 1; i++)
+            for (int j = 1; j < Field[i].Count() - 1; j++)
+                Field[i][j] = " ";
+        //Добавление нового изображения змеи на поле
         for (int i = 0; i < Field.Count(); i++)
             for (int j = 0; j < Field[i].Count(); j++)
-            {
-                if (snake.Body[0].X == i && snake.Body[0].Y == j)
-                    Field[i][j] = snake.Body[0].Symbol;
-            }
+                for (int k = 0; k < snake.Body.Count(); k++)
+                    if (snake.Body[k].X == i && snake.Body[k].Y == j)
+                        Field[i][j] = snake.Body[k].Symbol;
+    }
 
     public void Moving()
     {
+        List<BodyElement> newBody = new List<BodyElement>();
         switch (Direction)
         {
             case Direction.Up:
-                Player.Body[0].X -= 1;
+                newBody.Add(new Head(Player.Body[0].X - 1, Player.Body[0].Y, "@"));
                 break;
             case Direction.Down:
+                newBody.Add(new Head(Player.Body[0].X + 1, Player.Body[0].Y, "@"));
                 break;
             case Direction.Left:
+                newBody.Add(new Head(Player.Body[0].X, Player.Body[0].Y - 1, "@"));
                 break;
             case Direction.Right:
+                newBody.Add(new Head(Player.Body[0].X, Player.Body[0].Y + 1, "@"));
                 break;
             default:
                 break;
         }
+        for (int i = 0; i < Player.Body.Count() - 1; i++)
+        {
+            Player.Body[i].Symbol = "O";
+            newBody.Add(Player.Body[i]);
+        }
+        Player = new Snake(newBody);
     }
 }
 
 class Snake
 {
-    public Snake(int firstXCoordinate = 5, int firstYCoordinate = 5, List<BodyElement> body = null)
+    public Snake(int firstXCoordinate = 5, int firstYCoordinate = 10)
     {
-        if (body != null)
-            Body = body;
-        else
-        {
-            Body = new List<BodyElement>();
-            Body.Add(new Head(firstXCoordinate, firstYCoordinate, "■"));
-        }
+        Body = new List<BodyElement>() { new Head(firstXCoordinate, firstYCoordinate, "@"),
+                new BodyElement(firstXCoordinate, firstYCoordinate + 1, "О"),
+                new BodyElement(firstXCoordinate, firstYCoordinate+2, "О")};
+    }
+
+    public Snake(List<BodyElement> body)
+    {
+        Body = body;
     }
 
     public List<BodyElement> Body { get; set; }
@@ -137,7 +154,7 @@ class Snake
 
 class Head : BodyElement
 {
-    public Head(int x, int y, string symbol) : base(x,y, symbol)
+    public Head(int x, int y, string symbol) : base(x, y, symbol)
     {
     }
 }
@@ -153,7 +170,7 @@ class BodyElement
 
     public int X { get; set; }
     public int Y { get; set; }
-    public string Symbol { get; set; } = "○";
+    public string Symbol { get; set; }
 }
 
 enum Direction
