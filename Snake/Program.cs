@@ -11,12 +11,16 @@
 
 using System.Drawing;
 using System.Runtime.InteropServices;
+using System.Xml.Linq;
 
 Game myGame = new Game();
 myGame.FieldGeneration();
 myGame.AddSnake(new Snake());
-Console.WriteLine("Welcome to the Snake game!\n\nTo continue press Enter...");
-Console.ReadLine();
+myGame.FoodGeneration();
+myGame.AddFood();
+    
+//Console.WriteLine("Welcome to the Snake game!\n\nTo continue press Enter...");
+//Console.ReadLine();
 
 
 do
@@ -46,8 +50,16 @@ do
         default:
             break;
     }
+
     myGame.Moving();
+
     myGame.AddSnake(myGame.Player);
+    if (myGame.CheckFoodEating(myGame.Player.Body))
+    {
+        myGame.FoodGeneration();
+        
+    }
+    myGame.AddFood();
 } while (myGame.Loss());
 
 Console.WriteLine("You LOSE...");
@@ -58,8 +70,8 @@ class Game
 {
     public Snake Player { get; set; } = new Snake();
     public List<List<string>> Field { get; set; } = new List<List<string>>();
-
     public Direction Direction { get; set; }
+    public BodyElement Food { get; set; }
 
 
     public void FieldGeneration()
@@ -122,19 +134,67 @@ class Game
             default:
                 break;
         }
-        for (int i = 0; i < Player.Body.Count() - 1; i++)
-        {
-            Player.Body[i].Symbol = "O";
-            newBody.Add(Player.Body[i]);
-        }
+
+        if (CheckFoodEating(newBody))
+            for (int i = 0; i < Player.Body.Count(); i++)
+            {
+                Player.Body[i].Symbol = "O";
+                newBody.Add(Player.Body[i]);
+            }
+        else
+            for (int i = 0; i < Player.Body.Count() - 1; i++)
+            {
+                Player.Body[i].Symbol = "O";
+                newBody.Add(Player.Body[i]);
+            }
         Player = new Snake(newBody);
     }
 
     public bool Loss()
     {
-        if (Player.Body[0].X == 0 || Player.Body[0].Y == 0 || Player.Body[0].X == Field.Count() - 1 || Player.Body[0].Y == Field.Count() - 1) 
-            return false;   
+        //Столкновение с границами
+        if (Player.Body[0].X == 0 || Player.Body[0].Y == 0 || Player.Body[0].X == Field.Count() - 1 || Player.Body[0].Y == Field.Count() - 1)
+            return false;
+        //Столкновение со своим телом
+        for (int i = 3; i < Player.Body.Count(); i++)
+            if (Player.Body[0].X == Player.Body[i].X && Player.Body[0].Y == Player.Body[i].Y)
+                return false;
         return true;
+    }
+
+    public void FoodGeneration()
+    {
+        Random random = new Random();
+        int x, y;
+        bool flag;
+        do
+        {
+            flag = false;
+            x = random.Next(1, Field.Count() - 1);
+            y = random.Next(1, Field.Count() - 1);
+            for (int i = 0; i < Player.Body.Count(); i++)
+            {
+                if (x == Player.Body[i].X && y == Player.Body[i].Y)
+                    flag = true;
+            }
+
+        } while (flag);
+        Food = new BodyElement(x, y, "$");
+    }
+
+    public void AddFood()
+    {
+        for (int i = 0; i < Field.Count(); i++)
+            for (int j = 0; j < Field[i].Count(); j++)
+                if (Food.X == i && Food.Y == j)
+                    Field[i][j] = Food.Symbol;
+    }
+
+    public bool CheckFoodEating(List<BodyElement> body)
+    {
+        if (body[0].X == Food.X && body[0].Y == Food.Y)
+            return true;
+        return false;
     }
 }
 
