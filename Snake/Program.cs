@@ -54,11 +54,10 @@ do
     myGame.Moving();
 
     myGame.AddSnake(myGame.Player);
+
     if (myGame.CheckFoodEating(myGame.Player.Body))
-    {
         myGame.FoodGeneration();
         
-    }
     myGame.AddFood();
 } while (myGame.Loss());
 
