@@ -22,7 +22,6 @@ myGame.AddFood();
 //Console.WriteLine("Welcome to the Snake game!\n\nTo continue press Enter...");
 //Console.ReadLine();
 
-
 do
 {
     Thread.Sleep(100);
@@ -32,19 +31,15 @@ do
     switch (Console.ReadKey(true).Key)
     {
         case ConsoleKey.A:
-            if (myGame.Direction != Direction.Right)
                 myGame.Direction = Direction.Left;
             break;
         case ConsoleKey.D:
-            if (myGame.Direction != Direction.Left)
                 myGame.Direction = Direction.Right;
             break;
         case ConsoleKey.W:
-            if (myGame.Direction != Direction.Down)
                 myGame.Direction = Direction.Up;
             break;
         case ConsoleKey.S:
-            if (myGame.Direction != Direction.Up)
                 myGame.Direction = Direction.Down;
             break;
         default:
