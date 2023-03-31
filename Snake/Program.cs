@@ -7,18 +7,20 @@
 
 
 
+Game myGame = new Game(Up, Down, Left, Right);
+myGame.Losing += Loss;
+myGame.Player.EatFoodHandler += Eat;
+myGame.GameOver += Clearing;
+myGame.GameOver += MessageOfGameOver;
+myGame.GameOver += PointsInfo;
 
-
-using System.Drawing;
-using System.Runtime.InteropServices;
-using System.Xml.Linq;
-
-Game myGame = new Game();
 myGame.FieldGeneration();
 myGame.AddSnake(new Snake());
 myGame.FoodGeneration();
 myGame.AddFood();
-    
+bool end;
+
+
 //Console.WriteLine("Welcome to the Snake game!\n\nTo continue press Enter...");
 //Console.ReadLine();
 
@@ -26,15 +28,22 @@ do
 {
     Thread.Sleep(100);
     Console.Clear();
+    PointsInfo(myGame);
     myGame.ShowField();
 
     switch (Console.ReadKey(true).Key)
     {
         case ConsoleKey.W:
-                myGame.Direction = Direction.Up;
+            myGame.Buttons[0].Clicking(myGame);
             break;
         case ConsoleKey.S:
-                myGame.Direction = Direction.Down;
+            myGame.Buttons[1].Clicking(myGame);
+            break;
+        case ConsoleKey.A:
+            myGame.Buttons[2].Clicking(myGame);
+            break;
+        case ConsoleKey.D:
+            myGame.Buttons[3].Clicking(myGame);
             break;
         default:
             break;
@@ -42,22 +51,184 @@ do
 
     myGame.AddSnake(myGame.Player);
 
-    if (myGame.CheckFoodEating(myGame.Player.Body))
+    if(myGame.Player.EatingFood(myGame))
+    {
+        myGame.Points++;
         myGame.FoodGeneration();
-        
+    }
+       
     myGame.AddFood();
-} while (myGame.Loss());
+    end = myGame.Lose(myGame);
+        
+} while (end);
+ 
 
-Console.WriteLine("You LOSE...");
 
 
+
+
+
+// МЕТОДЫ
+
+bool Loss(object sender)
+{
+    Game myGame = sender as Game;
+    //Столкновение с границами
+    if (myGame.Player.Body[0].X == 0 || myGame.Player.Body[0].Y == 0 || myGame.Player.Body[0].X == myGame.Field.Count() - 1 || myGame.Player.Body[0].Y == myGame.Field.Count() - 1)
+        return false;
+       
+    //Столкновение со своим телом
+    for (int i = 1; i < myGame.Player.Body.Count(); i++)
+        if (myGame.Player.Body[0].X == myGame.Player.Body[i].X && myGame.Player.Body[0].Y == myGame.Player.Body[i].Y)
+            return false;
+    return true;
+}
+
+
+void Up(object sender)
+{
+    Game myGame = sender as Game;
+
+    //Создание дополнительного элемента тела змеи 
+    BodyElement newBodyElement = new BodyElement(myGame.Player.Body[myGame.Player.Body.Count() - 1].X,
+            myGame.Player.Body[myGame.Player.Body.Count() - 1].Y, "O");
+   
+    //Перезаписывание координат элементов тела змеи
+    for (int i = myGame.Player.Body.Count()-1; i >= 1; i--)
+    {
+        myGame.Player.Body[i].X = myGame.Player.Body[i - 1].X;
+        myGame.Player.Body[i].Y = myGame.Player.Body[i - 1].Y;
+    }
+
+    //Изменение координат головы
+    myGame.Player.Body[0].X--;
+
+    //если съела еду - добавление дополнительного элемента тела змеи
+    if (myGame.Player.EatingFood(sender))
+        myGame.Player.Body.Add(newBodyElement);
+}
+
+void Down(object sender)
+{
+    Game myGame = sender as Game;
+
+    //Создание дополнительного элемента тела змеи 
+    BodyElement newBodyElement = new BodyElement(myGame.Player.Body[myGame.Player.Body.Count() - 1].X,
+            myGame.Player.Body[myGame.Player.Body.Count() - 1].Y, "O");
+
+    //Перезаписывание координат элементов тела змеи
+    for (int i = myGame.Player.Body.Count() - 1; i >= 1; i--)
+    {
+        myGame.Player.Body[i].X = myGame.Player.Body[i - 1].X;
+        myGame.Player.Body[i].Y = myGame.Player.Body[i - 1].Y;
+    }
+
+    //Изменение координат головы
+    myGame.Player.Body[0].X++;
+
+    //если съела еду - добавление дополнительного элемента тела змеи
+    if (myGame.Player.EatingFood(sender))
+        myGame.Player.Body.Add(newBodyElement);
+}
+
+void Left(object sender)
+{
+    Game myGame = sender as Game;
+
+    //Создание дополнительного элемента тела змеи 
+    BodyElement newBodyElement = new BodyElement(myGame.Player.Body[myGame.Player.Body.Count() - 1].X,
+            myGame.Player.Body[myGame.Player.Body.Count() - 1].Y, "O");
+
+    //Перезаписывание координат элементов тела змеи
+    for (int i = myGame.Player.Body.Count() - 1; i >= 1; i--)
+    {
+        myGame.Player.Body[i].X = myGame.Player.Body[i - 1].X;
+        myGame.Player.Body[i].Y = myGame.Player.Body[i - 1].Y;
+    }
+
+    //Изменение координат головы
+    myGame.Player.Body[0].Y--;
+
+    //если съела еду - добавление дополнительного элемента тела змеи
+    if (myGame.Player.EatingFood(sender))
+        myGame.Player.Body.Add(newBodyElement);
+}
+
+void Right(object sender)
+{
+    Game myGame = sender as Game;
+
+    //Создание дополнительного элемента тела змеи 
+    BodyElement newBodyElement = new BodyElement(myGame.Player.Body[myGame.Player.Body.Count() - 1].X,
+            myGame.Player.Body[myGame.Player.Body.Count() - 1].Y, "O");
+
+    //Перезаписывание координат элементов тела змеи
+    for (int i = myGame.Player.Body.Count() - 1; i >= 1; i--)
+    {
+        myGame.Player.Body[i].X = myGame.Player.Body[i - 1].X;
+        myGame.Player.Body[i].Y = myGame.Player.Body[i - 1].Y;
+    }
+
+    //Изменение координат головы
+    myGame.Player.Body[0].Y++;
+
+    //если съела еду - добавление дополнительного элемента тела змеи
+    if (myGame.Player.EatingFood(sender))
+        myGame.Player.Body.Add(newBodyElement);
+}
+
+bool Eat(object sender)
+{
+    Game myGame = sender as Game;
+    if (myGame.Player.Body[0].X == myGame.Food.X && myGame.Player.Body[0].Y == myGame.Food.Y)
+        return true;
+    return false;
+}
+
+void MessageOfGameOver(object sender)
+{
+    Console.WriteLine("You LOSE...");
+}
+
+void PointsInfo(object sender)
+{
+    Game myGame = sender as Game;
+    Console.WriteLine($"Points: {myGame.Points}");
+}
+
+void Clearing(object sender)
+{
+    Console.Clear();
+}
+
+
+
+
+
+// КЛАССЫ
 
 class Game
 {
+    public Game(Click click1, Click click2, Click click3, Click click4)
+    {
+        Buttons[0].ClickHandler += click1;
+        Buttons[1].ClickHandler += click2;
+        Buttons[2].ClickHandler += click3;
+        Buttons[3].ClickHandler += click4;
+    }
+
     public Snake Player { get; set; } = new Snake();
     public List<List<string>> Field { get; set; } = new List<List<string>>();
     public BodyElement Food { get; set; }
 
+    public List<Button> Buttons { get; set; } = new List<Button>() 
+    { new Button(ConsoleKey.W), new Button(ConsoleKey.S), new Button(ConsoleKey.A), new Button(ConsoleKey.D)};
+
+    public event Lose Losing;
+
+    public int Points { get; set; } = 0;
+
+    public event GameOverDelegate GameOver;
 
     public void FieldGeneration()
     {
@@ -127,13 +298,14 @@ class Game
                     Field[i][j] = Food.Symbol;
     }
 
-    public bool CheckFoodEating(List<BodyElement> body)
+    public bool Lose(object sender)
     {
-        if (body[0].X == Food.X && body[0].Y == Food.Y)
-            return true;
-        return false;
+        if (!this.Losing(sender))
+            GameOver(sender);
+        return this.Losing(sender); 
     }
 }
+
 
 class Snake
 {
@@ -144,10 +316,15 @@ class Snake
                 new BodyElement(firstXCoordinate, firstYCoordinate+2, "О")};
     }
 
-    public Snake(List<BodyElement> body)
+    public event EatFood EatFoodHandler;
+
+    public List<BodyElement> Body { get; set; }
+
+    public bool EatingFood(object sender)
     {
-        Body = body;
+        return EatFoodHandler(sender);
     }
+}
 
 
 class Head : BodyElement
@@ -171,10 +348,27 @@ class BodyElement
     public string Symbol { get; set; }
 }
 
-enum Direction
+class Button
 {
-    Up,
-    Down,
-    Left,
-    Right
+    public Button(ConsoleKey key)
+    {
+        this.key = key;
+    }
+
+    public ConsoleKey key { get; set; } 
+
+    public event Click ClickHandler;
+
+    public void Clicking(object sender)
+    {
+        ClickHandler(sender);
+    }
 }
+
+
+//ДЕЛЕГАТЫ
+
+public delegate bool Lose(object sender);
+public delegate void Click(object sender);
+public delegate bool EatFood(object sender);
+public delegate void GameOverDelegate(object sender);
