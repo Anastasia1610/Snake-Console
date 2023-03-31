@@ -20,10 +20,6 @@ myGame.FoodGeneration();
 myGame.AddFood();
 bool end;
 
-
-//Console.WriteLine("Welcome to the Snake game!\n\nTo continue press Enter...");
-//Console.ReadLine();
-
 do
 {
     Thread.Sleep(100);
